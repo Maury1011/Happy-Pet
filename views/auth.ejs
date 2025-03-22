@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autenticación - Tienda Happy Pet</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        #register-form, #login-form {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <header class="bg-success text-white text-center py-4">
+        <h1>Autenticación</h1>
+    </header>
+    <main class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="d-grid gap-2 mb-3">
+                    <button id="show-login" class="btn btn-primary">Iniciar Sesión</button>
+                    <button id="show-register" class="btn btn-secondary">Crear Usuario Nuevo</button>
+                </div>
+
+                <form id="login-form" onsubmit="login(event)">
+                    <div class="mb-3">
+                        <label for="login-email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="login-email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="login-password" class="form-label">Contraseña</label>
+                        <input type="password" class="form-control" id="login-password" name="password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+                </form>
+
+                <form id="register-form" onsubmit="register(event)">
+                    <div class="mb-3">
+                        <label for="register-nombre" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="register-nombre" name="nombre" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="register-rut" class="form-label">RUT</label>
+                        <input type="text" class="form-control" id="register-rut" name="rut" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="register-email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="register-email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="register-password" class="form-label">Contraseña</label>
+                        <input type="password" class="form-control" id="register-password" name="password" required>
+                    </div>
+                    <button type="submit" class="btn btn-secondary">Crear Usuario Nuevo</button>
+                </form>
+            </div>
+        </div>
+    </main>
+    <footer class="bg-dark text-white text-center py-3">
+        <p>&copy; 2025 Tienda Happy Pet. Todos los derechos reservados.</p>
+    </footer>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Función para manejar el inicio de sesión
+        async function login(event) {
+            event.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+    
+            const response = await fetch('/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, password })
+            });
+    
+            const data = await response.json();
+            if (response.ok) {
+                alert('Inicio de sesión exitoso.');
+    
+                // Redirigir a la página de administración si es admin
+                if (data.rol === 'admin') {
+                    window.location.href = '/admin/productos';
+                } else {
+                    // Redirigir a la página de productos si no es admin
+                    window.location.href = '/productos';
+                }
+            } else {
+                alert(data.message);
+            }
+        }
+    
+        // Función para manejar el registro de usuario
+        async function register(event) {
+            event.preventDefault();
+            const nombre = document.getElementById('register-nombre').value;
+            const rut = document.getElementById('register-rut').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+    
+            const response = await fetch('/auth/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ nombre, rut, email, password })
+            });
+    
+            const data = await response.json();
+            if (response.ok) {
+                alert('Registro exitoso.');
+                // Redirigir a la página de productos
+                window.location.href = '/productos';
+            } else {
+                alert(data.message);
+            }
+        }
+    
+        $(document).ready(function() {
+            $('#show-login').click(function() {
+                $('#login-form').show();
+                $('#register-form').hide();
+            });
+            $('#show-register').click(function() {
+                $('#register-form').show();
+                $('#login-form').hide();
+            });
+        });
+    
+        // Función para acceder a la ruta de administración de productos
+        async function accederAdminProductos() {
+            const response = await fetch('/admin/productos', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+    
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Productos admin:', data);
+            } else {
+                console.error('Error al acceder a productos admin:', await response.json());
+            }
+        }
+    
+        // Llamar a la función para acceder a la ruta de administración de productos
+        accederAdminProductos();
+    </script>
+    
+</body>
+</html>
